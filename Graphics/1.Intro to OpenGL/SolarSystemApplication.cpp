@@ -7,7 +7,6 @@
 
 #include "Camera.h"
 #include <iostream>
-#include <vector>
 #include <stb_image.h>
 
 using glm::vec3;
@@ -25,48 +24,10 @@ SolarSystemApplication::~SolarSystemApplication() {
 
 }
 
-Vertex* SolarSystemApplication::genSemiCircle(const int points)
-{
-	Vertex* Vertices = new Vertex[points];
-
-	for (int Vert = 0; Vert < points / m_slices; Vert++)
-	{
-		float theta = (glm::pi<float>() * Vert) / (m_slices - 1);
-		Vertices[Vert].position = vec4(r * sin(theta), r * cos(theta), 0, 1);
-		Vertices[Vert].color = vec4(0, 0, 255, 1);
-	}
-	return Vertices;
-}
-
-Vertex * SolarSystemApplication::latheSphere(Vertex* Verts, int meridians)
-{
-	Verts = new Vertex[m_points];
-	for (int currentSlice = 0; currentSlice < meridians; currentSlice++)
-	{
-		float theta = glm::pi<float>() * m_points / (m_slices - 1);
-		float oldX = (sin(theta) * r);
-		float oldZ = 0;
-		float phi = ((glm::pi<float>() * 2 * currentSlice) / meridians);
-		float newX = oldX * cos(phi) + oldZ * sin(phi);
-		float newZ = oldZ * cos(phi) - oldX * sin(phi);
-		for (int currentPoint = 0; currentPoint < m_points; currentPoint++)
-		{
-
-			Verts[currentPoint].position = vec4(newX, (cos(theta) * r), newZ, 1);
-			Verts[currentPoint].position = vec4(newX, (cos(theta) * r), newZ, 1);
-		}
-		phi = ((glm::pi<float>() * 2 * currentSlice) / meridians);
-		newX = oldX * cos(phi) + oldZ * sin(phi);
-		newZ = oldZ * cos(phi) - oldX * sin(phi);
-		oldX = newX;
-		oldZ = newZ;
-	}
-	return Verts;
-}
 void SolarSystemApplication::texture()
 {
 	int imageWidth = 512, imageHeight = 512, imageFormat = 0;
-	unsigned char* data = stbi_load("./textures/crate.png",
+	unsigned char* data = stbi_load("./textures/reform.jpg",
 		&imageWidth, &imageHeight, &imageFormat, STBI_default);
 
 	glGenTextures(1, &m_texture);
@@ -74,17 +35,29 @@ void SolarSystemApplication::texture()
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, imageWidth, imageHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	stbi_image_free(data);
+
+	// load normal map
+	data = stbi_load("./textures/heart.png",
+		&imageWidth, &imageHeight, &imageFormat, STBI_default);
+
+	glGenTextures(1, &m_normalmap);
+	glBindTexture(GL_TEXTURE_2D, m_normalmap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imageWidth, imageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
 	stbi_image_free(data);
 }
 bool SolarSystemApplication::generateGrid()
 {
-
 	texture();
-	float vertexData[] = {
-		-5, 0, 5, 1, 0, 1,
-		5, 0, 5, 1, 1, 1,
-		5, 0, -5, 1, 1, 0,
-		-5, 0, -5, 1, 0, 0,
+	Vertex vertexData[] = {
+		{ -5, 0, 5, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1 },
+		{ 5, 0, 5, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1 },
+		{ 5, 0, -5, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0 },
+		{ -5, 0, -5, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0 },
 	};
 	unsigned int indexData[] = {
 		0, 1, 2,
@@ -92,15 +65,13 @@ bool SolarSystemApplication::generateGrid()
 	};
 
 	// create and bind buffers to a vertex array object
-
-
 	glGenVertexArrays(1, &m_VAO);
 	glBindVertexArray(m_VAO);
 
 	//Buffer Vertexes
 	glGenBuffers(1, &m_VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, vertexData, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * 4, vertexData, GL_STATIC_DRAW);
 
 
 	//Buffer indicies
@@ -110,9 +81,18 @@ bool SolarSystemApplication::generateGrid()
 
 
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 6, 0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE,
+		sizeof(Vertex), 0);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 6, ((char*)0) + 16);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE,
+		sizeof(Vertex), ((char*)0) + 48);
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE,
+		sizeof(Vertex), ((char*)0) + 16);
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE,
+		sizeof(Vertex), ((char*)0) + 32);
+
 
 
 	glBindVertexArray(0);
@@ -122,24 +102,44 @@ bool SolarSystemApplication::generateGrid()
 }
 bool SolarSystemApplication::CreateShader()
 {
-
 	// create shader
 	const char* vsSource = "#version 410\n \
 							layout(location=0) in vec4 Position; \
 							layout(location=1) in vec2 TexCoord; \
+							layout(location=2) in vec4 Normal; \
+							layout(location=3) in vec4 Tangent; \
 							out vec2 vTexCoord; \
+							out vec3 vNormal; \
+							out vec3 vTangent; \
+							out vec3 vBiTangent; \
 							uniform mat4 ProjectionView; \
-							void main() { \
-							vTexCoord = TexCoord; \
-							gl_Position= ProjectionView * Position;\
-							}";
+							void main() { vTexCoord = TexCoord; \
+							vNormal = Normal.xyz; \
+							vTangent = Tangent.xyz; \
+							vBiTangent = cross(vNormal, vTangent); \
+							gl_Position = ProjectionView * Position; }";
 	const char* fsSource = "#version 410\n \
 							in vec2 vTexCoord; \
+							in vec3 vNormal; \
+							in vec3 vTangent; \
+							in vec3 vBiTangent; \
 							out vec4 FragColor; \
+							uniform vec3 LightDir; \
 							uniform sampler2D diffuse; \
+							uniform sampler2D normal; \
 							void main() { \
-							FragColor = texture(diffuse,vTexCoord);\
-							}";
+							mat3 TBN = mat3( \
+							normalize( vTangent ), \
+							normalize( vBiTangent ), \
+							normalize( vNormal )); \
+							vec3 N = texture(normal, \
+							vTexCoord).xyz * 2 - 1; \
+							float d = max( 0, dot( \
+							normalize( TBN * N ), \
+							normalize( LightDir ))); \
+							FragColor = texture(diffuse, vTexCoord); \
+							FragColor.rgb = FragColor.rgb * d;}";
+
 	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertexShader, 1, (const char**)&vsSource, 0);
 	glCompileShader(vertexShader);
@@ -159,16 +159,10 @@ bool SolarSystemApplication::startup() {
 
 	// create a basic window
 	createWindow("AIE OpenGL Application", 1280, 720);
-
-	// start the gizmo system that can draw basic immediate-mode shapes
-
-
 	// setup camera
 	m_camera = new Camera(glm::pi<float>() * 0.25f, 16 / 9.f, 0.1f, 1000.f);
 	m_camera->setLookAtFrom(vec3(10, 10, 10), vec3(0));
-
-
-	//
+	vec3 light(sin(glfwGetTime()), 1, cos(glfwGetTime()));
 	generateGrid();
 	CreateShader();
 	// set input callbacksetInputCallback(inputCallback);
@@ -176,11 +170,8 @@ bool SolarSystemApplication::startup() {
 }
 
 void SolarSystemApplication::shutdown() {
-
 	// cleanup camera and gizmos
 	delete m_camera;
-
-
 	// destroy our window properly
 	destroyWindow();
 }
@@ -191,11 +182,8 @@ bool SolarSystemApplication::update(float deltaTime) {
 	if (glfwWindowShouldClose(m_window) ||
 		glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		return false;
-
 	// update the camera's movement
 	m_camera->update(deltaTime);
-
-
 	// return true, else the application closes
 	return true;
 }
@@ -209,12 +197,20 @@ void SolarSystemApplication::draw() {
 	int loc = glGetUniformLocation(m_programID, "ProjectionView");
 	glUniformMatrix4fv(loc, 1, GL_FALSE,
 		&(m_camera->getProjectionView()[0][0]));
-	// set texture slot
+	// set texture slots
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, m_normalmap);
 	// tell the shader where it is
 	loc = glGetUniformLocation(m_programID, "diffuse");
 	glUniform1i(loc, 0);
+	loc = glGetUniformLocation(m_programID, "normal");
+	glUniform1i(loc, 1);
+	// bind the light
+	vec3 light(sin(glfwGetTime()), 1, cos(glfwGetTime()));
+	loc = glGetUniformLocation(m_programID, "LightDir");
+	glUniform3f(loc, light.x, light.y, light.z);
 	// draw
 	glBindVertexArray(m_VAO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);

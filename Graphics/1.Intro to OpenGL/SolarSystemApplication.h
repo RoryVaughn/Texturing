@@ -7,9 +7,12 @@
 //#include "gl_core_4_4.h"
 
 struct Vertex {
-	glm::vec4 position;
-	glm::vec4 color;
+	float x, y, z, w;
+	float nx, ny, nz, nw;
+	float tx, ty, tz, tw;
+	float s, t;
 };
+
 
 // forward declared to reduce dependencies
 class Camera;
@@ -19,14 +22,11 @@ public:
 	
 	SolarSystemApplication();
 	virtual ~SolarSystemApplication();
-	Vertex* genSemiCircle(const int);
-	Vertex* latheSphere(Vertex*,int meridians);
 	void texture ();
 	bool generateGrid();
 	bool CreateShader();
 	virtual bool startup();
 	virtual void shutdown();
-
 	virtual bool update(float deltaTime);
 	virtual void draw();
 
@@ -44,9 +44,6 @@ private:
 	unsigned int m_VBO;
 	unsigned int m_IBO;
 	unsigned int m_programID;
-	int m_slices = 10;
-	unsigned int m_texture;
-	static const int m_points = 100;
-	float r = 4.f;
-	unsigned int m_indices[m_points];
+	unsigned int m_texture, m_normalmap;
+	unsigned int m_indices[];
 };
