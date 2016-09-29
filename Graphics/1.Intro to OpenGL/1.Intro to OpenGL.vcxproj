@@ -129,14 +129,14 @@
     <ClCompile Include="..\src\Gizmos.cpp" />
     <ClCompile Include="..\src\gl_core_4_4.c" />
     <ClCompile Include="..\src\main.cpp" />
-    <ClCompile Include="SolarSystemApplication.cpp" />
+    <ClCompile Include="Texturing.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\BaseApplication.h" />
     <ClInclude Include="..\src\Camera.h" />
     <ClInclude Include="..\src\Gizmos.h" />
     <ClInclude Include="..\src\gl_core_4_4.h" />
-    <ClInclude Include="SolarSystemApplication.h" />
+    <ClInclude Include="Texturing.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

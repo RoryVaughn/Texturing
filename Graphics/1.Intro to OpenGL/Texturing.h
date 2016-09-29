@@ -17,11 +17,11 @@ struct Vertex {
 // forward declared to reduce dependencies
 class Camera;
 
-class SolarSystemApplication : public BaseApplication {
+class Texturing : public BaseApplication {
 public:
 	
-	SolarSystemApplication();
-	virtual ~SolarSystemApplication();
+	Texturing();
+	virtual ~Texturing();
 	void texture ();
 	bool generateGrid();
 	bool CreateShader();

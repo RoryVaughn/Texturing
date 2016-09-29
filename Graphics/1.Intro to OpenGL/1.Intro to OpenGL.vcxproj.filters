@@ -26,7 +26,7 @@
     <ClCompile Include="..\src\gl_core_4_4.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SolarSystemApplication.cpp">
+    <ClCompile Include="Texturing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -43,7 +43,7 @@
     <ClInclude Include="..\src\gl_core_4_4.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SolarSystemApplication.h">
+    <ClInclude Include="Texturing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
