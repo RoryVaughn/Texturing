@@ -37,6 +37,17 @@ void Texturing::texture()
 
 	stbi_image_free(data);
 
+	data = stbi_load("./textures/lightening.png",
+		&imageWidth, &imageHeight, &imageFormat, STBI_default);
+
+	glGenTextures(1, &m_texture2);
+	glBindTexture(GL_TEXTURE_2D, m_texture2);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imageWidth, imageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+	stbi_image_free(data);
+
 	// load normal map
 	data = stbi_load("./textures/heart.png",
 		&imageWidth, &imageHeight, &imageFormat, STBI_default);
@@ -126,6 +137,7 @@ bool Texturing::CreateShader()
 							uniform vec3 LightDir; \
 							uniform sampler2D diffuse; \
 							uniform sampler2D normal; \
+							uniform sampler2D diffuse2; \
 							void main() { \
 							mat3 TBN = mat3( \
 							normalize( vTangent ), \
@@ -137,6 +149,7 @@ bool Texturing::CreateShader()
 							normalize( TBN * N ), \
 							normalize( LightDir ))); \
 							FragColor = texture(diffuse, vTexCoord); \
+							FragColor += texture(diffuse2, vTexCoord); \
 							FragColor.rgb = FragColor.rgb * d;}";
 
 	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -199,11 +212,15 @@ void Texturing::draw() {
 	// set texture slots
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_texture);
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, m_texture2);
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, m_normalmap);
 	// tell the shader where it is
 	loc = glGetUniformLocation(m_programID, "diffuse");
 	glUniform1i(loc, 0);
+	loc = glGetUniformLocation(m_programID, "diffuse2");
+	glUniform1i(loc, 2);
 	loc = glGetUniformLocation(m_programID, "normal");
 	glUniform1i(loc, 1);
 	// bind the light

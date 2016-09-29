@@ -44,6 +44,6 @@ private:
 	unsigned int m_VBO;
 	unsigned int m_IBO;
 	unsigned int m_programID;
-	unsigned int m_texture, m_normalmap;
+	unsigned int m_texture, m_normalmap,m_texture2;
 	unsigned int m_indices[];
 };
