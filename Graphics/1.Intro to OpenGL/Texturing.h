@@ -2,14 +2,15 @@
 
 #include "BaseApplication.h"
 #include <glm/vec4.hpp>
-#include <glm/vec2.hpp>
 #include <vector>
 //#include <glm/mat4x2.hpp>
 //#include "gl_core_4_4.h"
 
 struct Vertex {
-	glm::vec4 position;
-	glm::vec2 texcoord;
+	float x, y, z, w;
+	float nx, ny, nz, nw;
+	float tx, ty, tz, tw;
+	float s, t;
 };
 
 
@@ -43,7 +44,6 @@ private:
 	unsigned int m_VBO;
 	unsigned int m_IBO;
 	unsigned int m_programID;
-	unsigned int m_texture, m_perlin_texture;
-	int m_count;
-	int m_vertNum;
+	unsigned int m_texture, m_normalmap,m_texture2;
+	unsigned int m_indices[];
 };
